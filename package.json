@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build"
+    "build": "tsc --noEmit && vite build",
+    "export:video": "node scripts/export-video.mjs",
+    "test:export": "node --test scripts/export-video.test.mjs"
   },
   "dependencies": {
     "@motion-canvas/2d": "^3.17.2",

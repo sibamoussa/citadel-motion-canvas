@@ -91,6 +91,20 @@ Motion Canvas film—not a static mockup or a generic slide deck.
 - Keep the render range, scene timing, and narration timestamps in sync.
   For an image-sequence export, document how to render it and where output is
   saved; do not imply a video file exists until it has actually been exported.
+- When the user requests a video or confirms frames are saved, automatically
+  run `npm run export:video` after the complete PNG render. Do not stop at
+  instructions: encode and verify the MP4, then report its actual path.
+  This is agent workflow guidance, not a background watcher; it does not
+  automatically fire when the editor finishes without an agent invocation.
+- Use the project's render fps by default. If the frame count differs from
+  the configured range, investigate incomplete or stale frames and confirm
+  the original render rate. Only use `-- --fps 60` when the saved sequence
+  was actually rendered at 60 fps. Never silently trim, delete, or retime it.
+- The export script checks contiguous six-digit PNGs, encodes H.264 MP4,
+  and verifies frame count, dimensions, fps, and duration using ffprobe.
+  Existing videos are preserved; use `--output` for a new filename.
+  On Windows ARM64, use the script's pinned Windows x64 FFmpeg fallback,
+  not the unsupported native `@motion-canvas/ffmpeg` exporter.
 - Run `npm run build` after changes. Check the live Vite/Motion Canvas editor
   for scene transform errors, then inspect the composition at the beginning,
   architecture beat, and end card. Verify all visible copy fits before
