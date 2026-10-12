@@ -30,6 +30,116 @@ To watch without installing anything, open or download
 [the exported MP4](media/citadel.mp4). The published video is 30.667 seconds
 at 60 fps, 1920x1080, with no audio.
 
+### Step by step: replicate this film
+
+1. Install the requirements above, clone the repository, and enter
+   `citadel-motion-canvas`.
+2. Run `npm ci` to install the dependency versions recorded in the lockfile.
+3. Run `npm run dev` and open the URL printed in the terminal.
+4. Play the film from the beginning. Check the opening, platform intake,
+   architecture, screening, control tower, and final card before rendering.
+5. For the configured 30-second version, select PNG image sequence,
+   1920x1080, resolution scale 1, rendering fps 30, range 0-900, and no
+   scene grouping. Use an empty frame folder, then click Render.
+6. Wait for rendering to finish and confirm the numbered PNGs are in
+   `output\project`. In a second terminal in the project folder, run
+   `npm run export:video`.
+7. Open `output\project\citadel.mp4` in a video player and watch the full
+   result. Use this file in your presentation or share it with others.
+
+The checked-in viewing copy was made from 1,840 saved frames at 60 fps and
+lasts 30.667 seconds. The default recipe above produces the configured
+900-frame, 30-fps version; it is not a byte-for-byte reproduction of that
+earlier export. To regenerate the viewing copy, render the full scene at
+60 fps, note the actual frame count, and use
+`npm run export:video -- --fps 60`. Fonts and rendering can vary between
+machines.
+
+### Step by step: create a new motion
+
+1. Fork this repository on GitHub, then clone your fork. Alternatively,
+   clone this repository into a new local folder to experiment without
+   changing the original. Run `npm ci`.
+2. Define the brief: audience, one takeaway, desired duration, palette,
+   source material, and any required metaphor. Break it into timed beats.
+   For a 30-second film, start with a short opening, an explanation,
+   a diagram, an outcome, and a closing message.
+3. Create `src\scenes\my-motion.tsx`. Either copy `citadel.tsx` and adapt
+   its existing components, or use the small scene below as a starting point.
+   Replace Citadel-specific names, links, and claims with your own
+   source-backed content.
+4. Register the new scene in `src\project.ts` using the example below.
+   Replace the scene list to make a new film, or add scenes in sequence for
+   a multi-scene film. Each scene's duration contributes to the total.
+5. Build the visuals in JSX and animate their properties with generator
+   functions. `yield*` waits for a transition; `all(...)` runs transitions
+   together. Include both animation durations and `waitFor(...)` pauses
+   in the total runtime.
+6. Match the project render range to the new runtime: seconds multiplied
+   by rendering fps. The starter below lasts 5 seconds, so use range
+   0-150 at 30 fps. Keep the composition at 1920x1080 and scale 1 unless
+   you intentionally need another size.
+7. Run `npm run dev`, preview the new scene, and inspect its first frame,
+   transitions, and final frame. Check text wrapping, safe margins, and
+   readability. Run `npm run build` and `npm run test:export`.
+8. Render a fresh PNG sequence using the settings above, then run
+   `npm run export:video -- --output output\project\my-motion.mp4`.
+   If the render used another fps, also pass that actual rate with `--fps`.
+9. Watch the exported film end to end. Update this README's story, source
+   references, and timings. If publishing a viewing copy, put it in
+   `media` rather than committing the generated frame directory.
+
+**Minimal scene** (`src\scenes\my-motion.tsx`):
+
+```tsx
+import {makeScene2D, Txt} from '@motion-canvas/2d';
+import {createRef, waitFor} from '@motion-canvas/core';
+
+export default makeScene2D(function* (view) {
+  view.fill('#071A2B');
+  const title = createRef<Txt>();
+  view.add(
+    <Txt
+      ref={title}
+      text="Your executive message"
+      fontSize={80}
+      fill="#F5FAFF"
+      width={1500}
+      textAlign="center"
+      textWrap
+      opacity={0}
+    />,
+  );
+  yield* title().opacity(1, 0.6);
+  yield* waitFor(3.8);
+  yield* title().opacity(0, 0.6);
+});
+```
+
+**Register it** (`src\project.ts`):
+
+```ts
+import {makeProject} from '@motion-canvas/core';
+import myMotion from './scenes/my-motion?scene';
+
+export default makeProject({
+  scenes: [myMotion],
+});
+```
+
+**Optional agent-assisted workflow:** open your fork in a coding agent that
+supports project skills and ask it to follow
+`.github\skills\motion-canvas-executive-film\SKILL.md`. For example:
+
+> Create a 30-second executive Motion Canvas film about [topic] for
+> [audience]. Use [source URL] for factual claims, [metaphor] to explain
+> the flow, and [palette]. Include five readable story beats, update the
+> narration guide, and check text fits. Follow the project film skill.
+
+After the editor finishes rendering, ask the agent to convert the saved
+frames and provide their directory and actual render fps. The skill does
+not replace the editor's PNG render step.
+
 ### Edit the animation
 
 | File | What to change |
