@@ -105,6 +105,11 @@ Motion Canvas film—not a static mockup or a generic slide deck.
   Existing videos are preserved; use `--output` for a new filename.
   On Windows ARM64, use the script's pinned Windows x64 FFmpeg fallback,
   not the unsupported native `@motion-canvas/ffmpeg` exporter.
+- Never infer render fps from total file count: a shorter re-render can leave
+  an older sequence's tail in the same folder. Check frame timestamps and
+  project settings; preserve stale frames in a backup folder. For 30 seconds
+  at 30 fps, encode frames 000000 through 000899 only. Inspect a contact sheet
+  or watch the output to ensure story beats appear once before publishing.
 - Run `npm run build` after changes. Check the live Vite/Motion Canvas editor
   for scene transform errors, then inspect the composition at the beginning,
   architecture beat, and end card. Verify all visible copy fits before

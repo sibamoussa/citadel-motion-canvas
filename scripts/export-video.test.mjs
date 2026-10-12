@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {parseOptions, validateSequence} from './export-video.mjs';
+import {parseOptions, validateSequence, validateFrameTimes} from './export-video.mjs';
 
 test('uses project fps unless explicitly overridden', () => {
   assert.equal(parseOptions([], 30).fps, 30);
@@ -25,4 +25,10 @@ test('requires contiguous frames starting at zero', () => {
 test('detects stale or incomplete ranges unless render fps is explicit', () => {
   assert.throws(() => validateSequence(['000000.png'], 900, false), /project range expects/);
   assert.equal(validateSequence(['000000.png'], 900, true), 1);
+});
+
+test('rejects older frames left behind by a previous render even with explicit fps', () => {
+  validateFrameTimes([10000, 11000, 12000]);
+  validateFrameTimes([10000, 9900, 11000]);
+  assert.throws(() => validateFrameTimes([10000, 11000, 5000]), /Stale frames/);
 });

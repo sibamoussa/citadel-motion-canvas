@@ -27,8 +27,8 @@ using the Motion Canvas editor. Press Play to preview the film or scrub the
 timeline to inspect individual beats. Stop the server with Ctrl+C when finished.
 
 To watch without installing anything, open or download
-[the exported MP4](media/citadel.mp4). The published video is 30.667 seconds
-at 60 fps, 1920x1080, with no audio.
+[the exported MP4](media/citadel.mp4). The published video is 30 seconds
+at 30 fps, 1920x1080, with no audio.
 
 ### Step by step: replicate this film
 
@@ -47,13 +47,9 @@ at 60 fps, 1920x1080, with no audio.
 7. Open `output\project\citadel.mp4` in a video player and watch the full
    result. Use this file in your presentation or share it with others.
 
-The checked-in viewing copy was made from 1,840 saved frames at 60 fps and
-lasts 30.667 seconds. The default recipe above produces the configured
-900-frame, 30-fps version; it is not a byte-for-byte reproduction of that
-earlier export. To regenerate the viewing copy, render the full scene at
-60 fps, note the actual frame count, and use
-`npm run export:video -- --fps 60`. Fonts and rendering can vary between
-machines.
+The checked-in viewing copy uses 900 frames at 30 fps and lasts 30 seconds.
+The default recipe above matches those settings. Fonts and rendering can
+vary between machines, so exports need not be byte-for-byte identical.
 
 ### Step by step: create a new motion
 
@@ -188,9 +184,12 @@ npm run export:video -- --output output\project\citadel-v2.mp4
 If the frames were rendered at a different frame rate, explicitly supply
 that rate, for example `npm run export:video -- --fps 60`.
 Do not change the rate just to shorten the video: it must match the actual
-render rate. The saved 1,840-frame sequence is 30.667 seconds at 60 fps.
-For an exact 30-second film, render a fresh, empty sequence directory with
-the configured 900-frame range at 30 fps.
+render rate. A previous export mixed a new 30-fps sequence with leftover
+frames from an older render, which replayed part of the film. The published
+video has been corrected. The script now rejects frames older than the start
+of the current render, even when `--fps` is supplied. For an exact 30-second
+film, use only frames `000000.png` through `000899.png`; if the editor also
+writes the endpoint `000900.png`, move it to a backup folder before encoding.
 
 For frames saved elsewhere, pass their directory and the desired destination.
 Quote paths containing spaces:

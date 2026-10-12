@@ -1,6 +1,6 @@
 import {spawnSync} from 'node:child_process';
 import {createWriteStream} from 'node:fs';
-import {access, mkdir, readFile, readdir, rename, rm} from 'node:fs/promises';
+import {access, mkdir, readFile, readdir, rename, rm, stat} from 'node:fs/promises';
 import path from 'node:path';
 import {Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
@@ -53,6 +53,12 @@ export function validateSequence(names, expectedFrames, explicitFps) {
     );
   }
   return frames.length;
+}
+
+export function validateFrameTimes(times) {
+  if (times.some(time => time < times[0] - 2000)) {
+    throw new Error('Stale frames from an earlier render detected. Move old frames to a backup folder and export only the current render.');
+  }
 }
 
 function run(binary, args, capture = false) {
@@ -119,6 +125,13 @@ export async function main(args = process.argv.slice(2)) {
     meta.shared.range[1] - meta.shared.range[0],
     options.explicitFps,
   );
+  const times = await Promise.all(
+    Array.from({length: count}, async (_, index) => {
+      const frame = path.join(options.frames, `${String(index).padStart(6, '0')}.png`);
+      return (await stat(frame)).mtimeMs;
+    }),
+  );
+  validateFrameTimes(times);
   try {
     await access(options.output);
     throw new Error(`Output already exists: ${options.output}. Choose a new --output filename.`);
